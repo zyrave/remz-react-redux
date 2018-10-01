@@ -12,10 +12,9 @@ const app = express();
 
 app.use(
   webpackDevMiddleware(compiler, {
-    logLevel: 'warn',
+    hot: true,
     publicPath: webpackConfig.output.publicPath,
-    silent: true,
-    stats: 'errors-only',
+    noInfo: true,
   })
 );
 

@@ -1,18 +1,11 @@
-const path = require('path');
 const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  entry: [
-    'babel-polyfill',
-    'eventsource-polyfill', // Necessary for hot reloading with IE
-    'webpack-hot-middleware/client?reload=true',
-    './client/index.js',
-  ],
+  entry: ['webpack-hot-middleware/client?reload=true', './client/index.js'],
   output: {
-    path: path.resolve(process.cwd(), './build'),
-    filename: 'bundle.js',
+    path: '/',
     publicPath: '/',
   },
   watch: true,
@@ -37,6 +30,8 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.NoEmitOnErrorsPlugin(),
+    new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebPackPlugin({
       template: './server/index.html',

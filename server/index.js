@@ -6,22 +6,34 @@ const webpackHotMiddleware = require('webpack-hot-middleware');
 
 const webpackConfig = require('../webpack/webpack.dev.config');
 
-const compiler = webpack(webpackConfig);
-
 const app = express();
 
-app.use(
-  webpackDevMiddleware(compiler, {
-    hot: true,
-    publicPath: webpackConfig.output.publicPath,
-    noInfo: true,
-  })
-);
+const compiler = webpack(webpackConfig);
 
+const createWebpackMiddleware = publicPath =>
+  webpackDevMiddleware(compiler, {
+    publicPath,
+    noInfo: true,
+    // logLevel: 'warn',
+    // silent: true,
+    // stats: 'errors-only',
+  });
+
+const webpackMiddleware = createWebpackMiddleware(webpackConfig.output.publicPath);
+
+app.use(webpackMiddleware);
 app.use(webpackHotMiddleware(compiler));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'index.html'));
+const fs = webpackMiddleware.fileSystem;
+
+app.get('*', (req, res) => {
+  fs.readFile(path.join(compiler.outputPath, 'index.html'), (err, file) => {
+    if (err) {
+      res.sendStatus(404);
+    } else {
+      res.send(file.toString());
+    }
+  });
 });
 
 app.listen(3000, '0.0.0.0', err => {
